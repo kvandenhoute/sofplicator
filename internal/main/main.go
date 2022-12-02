@@ -1,13 +1,15 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/kvandenhoute/sofplicator/internal/replicator"
 	"github.com/kvandenhoute/sofplicator/internal/util"
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	var logLevel string = "INFO"
+	var logLevel string = "TRACE"
 
 	var level log.Level
 	level.UnmarshalText([]byte(logLevel))
@@ -43,11 +45,11 @@ func main() {
 		},
 	}
 
-	registries := util.GetAllACRsWithLabel(util.ListSubscriptions(), "test", "yes")
+	registries := util.GetAllACRsWithLabel(util.ListSubscriptions(), "replicationTarget", "true")
 
 	for _, registry := range registries {
-		configMapName := replicator.CreateConfigmap(images, charts, "default")
-		replicator.CreateJob("harbor.aks-we-devops-harbor.int.sofico.be/dev/acr-skopeo-replicate-kvdh:1.0.0", "dev-tooling", "docker-credentials", "/etc/sofplicator", configMapName, "acr-credentials", *registry.Registry.LoginServer)
+		configMapName := replicator.CreateConfigmap(*registry.Registry.LoginServer, ".")[0]+"-repl", images, charts, "default")
+		replicator.CreateJob(strings.Split(*registry.Registry.LoginServer, ".")[0]+"-repl", "harbor.aks-we-devops-harbor.int.sofico.be/dev/acr-skopeo-replicate-kvdh:1.0.0", "dev-tooling", "docker-credentials", "/etc/sofplicator", configMapName, "acr-credentials", *registry.Registry.LoginServer)
 	}
 
 }

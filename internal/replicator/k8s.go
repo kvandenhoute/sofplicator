@@ -12,10 +12,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func CreateSecret(username string, password string, namespace string) string {
+func CreateSecret(name string, username string, password string, namespace string) string {
 	log.Info("Creating AZ secret")
 	client := util.GetKubeClient()
-	secretName := util.GenerateName("sofplicator-secret")
+	secretName := util.GenerateName(name)
 	secrets := client.CoreV1().Secrets(namespace)
 	secret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -35,10 +35,10 @@ func CreateSecret(username string, password string, namespace string) string {
 	return secretName
 }
 
-func CreateConfigmap(images []Artifact, charts []Artifact, namespace string) string {
+func CreateConfigmap(name string, images []Artifact, charts []Artifact, namespace string) string {
 	log.Info("Creating Configmap")
 	client := util.GetKubeClient()
-	configMapName := util.GenerateName("sofplicator-cm")
+	configMapName := util.GenerateName(name)
 	configMaps := client.CoreV1().ConfigMaps(namespace)
 	imagesJson, err := json.Marshal(images)
 	if err != nil {
@@ -66,11 +66,11 @@ func CreateConfigmap(images []Artifact, charts []Artifact, namespace string) str
 	return configMapName
 }
 
-func CreateJob(image string, namespace string, imagePullSecret string, mountPath string, configMapName string, secretName string, vaultURI string) string {
+func CreateJob(name string, image string, namespace string, imagePullSecret string, mountPath string, configMapName string, secretName string, vaultURI string) string {
 	client := util.GetKubeClient()
 	jobs := client.BatchV1().Jobs(namespace)
 	log.Info("Starting job")
-	jobName := util.GenerateName("sofplicator-job")
+	jobName := util.GenerateName(name)
 	var backOffLimit int32 = 2
 	log.Info(vaultURI)
 
