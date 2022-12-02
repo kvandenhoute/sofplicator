@@ -1,0 +1,45 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    {{- include "sofplicator.labels" . | nindent 4 }}
+  name: sofplicator-{{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "sofplicator.serviceAccountName" . }}-{{ .Release.Namespace }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "sofplicator.serviceAccountName" . }}-{{ .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+  name: {{ include "sofplicator.serviceAccountName" . }}-{{ .Release.Namespace }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - configmaps
+  - secrets
+  verbs:
+  - 'list'
+  - 'get'
+  - 'create'
+  - 'patch'
+- apiGroups:
+  - "batch"
+  resources:
+  - jobs
+  verbs:
+  - "get"
+  - "list"
+  - "watch"
+  - "create"
+  - "update"
+  - "patch"
+  - "delete"
