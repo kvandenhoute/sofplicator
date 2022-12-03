@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kvandenhoute/sofplicator/internal/api"
+	"github.com/kvandenhoute/sofplicator/api/internal/api"
 )
 
 func ServeRouter() {

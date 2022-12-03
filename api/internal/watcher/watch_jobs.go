@@ -13,7 +13,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/kvandenhoute/sofplicator/internal/util"
+	"github.com/kvandenhoute/sofplicator/api/internal/util"
 )
 
 func watcher() {

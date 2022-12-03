@@ -1,4 +1,4 @@
-module github.com/kvandenhoute/sofplicator
+module github.com/kvandenhoute/sofplicator/api
 
 go 1.18
 

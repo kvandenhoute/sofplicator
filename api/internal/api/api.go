@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	replicator "github.com/kvandenhoute/sofplicator/internal/replicator"
+	replicator "github.com/kvandenhoute/sofplicator/api/internal/replicator"
 	log "github.com/sirupsen/logrus"
 )
 

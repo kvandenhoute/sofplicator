@@ -3,8 +3,8 @@ package main
 import (
 	"strings"
 
-	"github.com/kvandenhoute/sofplicator/internal/replicator"
-	"github.com/kvandenhoute/sofplicator/internal/util"
+	"github.com/kvandenhoute/sofplicator/api/internal/replicator"
+	"github.com/kvandenhoute/sofplicator/api/internal/util"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -48,7 +48,7 @@ func main() {
 	registries := util.GetAllACRsWithLabel(util.ListSubscriptions(), "replicationTarget", "true")
 
 	for _, registry := range registries {
-		configMapName := replicator.CreateConfigmap(*registry.Registry.LoginServer, ".")[0]+"-repl", images, charts, "default")
+		configMapName := replicator.CreateConfigmap(strings.Split(*registry.Registry.LoginServer, ".")[0]+"-repl", images, charts, "default")
 		replicator.CreateJob(strings.Split(*registry.Registry.LoginServer, ".")[0]+"-repl", "harbor.aks-we-devops-harbor.int.sofico.be/dev/acr-skopeo-replicate-kvdh:1.0.0", "dev-tooling", "docker-credentials", "/etc/sofplicator", configMapName, "acr-credentials", *registry.Registry.LoginServer)
 	}
 

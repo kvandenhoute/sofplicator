@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/kvandenhoute/sofplicator/internal/util"
+	"github.com/kvandenhoute/sofplicator/api/internal/util"
 	log "github.com/sirupsen/logrus"
 )
 
