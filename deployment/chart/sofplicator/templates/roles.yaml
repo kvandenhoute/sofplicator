@@ -27,19 +27,20 @@ rules:
   - configmaps
   - secrets
   verbs:
-  - 'list'
-  - 'get'
-  - 'create'
-  - 'patch'
+  - list
+  - get
+  - create
+  - patch
+  - delete
 - apiGroups:
-  - "batch"
+  - batch
   resources:
   - jobs
   verbs:
-  - "get"
-  - "list"
-  - "watch"
-  - "create"
-  - "update"
-  - "patch"
-  - "delete"
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
