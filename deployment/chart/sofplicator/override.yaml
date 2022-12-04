@@ -2,7 +2,7 @@
 
 image:
   repository: harbor.aks-we-devops-harbor.int.sofico.be/dev/sofplicator
-  tag: "0.2.2"
+  tag: "0.4.0"
   pullPolicy: Always
 
 imagePullSecrets: 
@@ -63,8 +63,8 @@ tolerations: []
 
 affinity: {}
 
-azTenantID: ""
+azTenantID: 214e89fc-27c2-4663-8683-210792b6496a
 azCredentials:
-  secretName: ""
-  clientIDKey: ""
-  clientSecretKey: ""
+  secretName: az-credentials
+  clientIDKey: AZURE_CLIENT_ID
+  clientSecretKey: AZURE_CLIENT_SECRET
