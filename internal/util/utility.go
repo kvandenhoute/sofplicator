@@ -6,9 +6,12 @@ import (
 	"github.com/google/uuid"
 )
 
-func GenerateName(name string) string {
-	id := uuid.New()
-	generatedName := fmt.Sprintf("%s-%s", name, id.String())
+func GenerateUuid() string {
+	return uuid.New().String()
+}
+
+func GenerateName(name string, uuid string) string {
+	generatedName := fmt.Sprintf("%s-%s", name, uuid)
 	return generatedName[:Min(len(generatedName), 63)]
 }
 
