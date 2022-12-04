@@ -1,0 +1,27 @@
+[
+    {
+        "name": "prom2teams",
+        "version": "3.2.1",
+        "repo": "contrib"
+    },
+    {
+        "name": "cert-manager-webhook",
+        "version": "v1.9.1",
+        "repo": "contrib"
+    },
+    {
+        "name": "node-exporter",
+        "version": "v1.3.1",
+        "repo": "contrib"
+    },
+    {
+        "name": "gatekeeper",
+        "version": "v3.9.0",
+        "repo": "contrib"
+    },
+    {
+        "name": "keda",
+        "version": "2.7.1",
+        "repo": "contrib"
+    }
+]

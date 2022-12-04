@@ -2,6 +2,7 @@ package main
 
 import (
 	env "github.com/Netflix/go-env"
+	"github.com/kvandenhoute/sofplicator/job/internal/model"
 	"github.com/kvandenhoute/sofplicator/job/internal/replication"
 	log "github.com/sirupsen/logrus"
 	flag "github.com/spf13/pflag"
@@ -19,7 +20,7 @@ func main() {
 	level.UnmarshalText([]byte(logLevel))
 	log.SetLevel(level)
 
-	var replicationInfo replication.ReplicationInfo
+	var replicationInfo model.ReplicationInfo
 	env.UnmarshalFromEnviron(&replicationInfo)
 
 	replication.Start(&replicationInfo)
