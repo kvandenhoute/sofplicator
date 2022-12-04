@@ -8,5 +8,20 @@ import (
 
 func GenerateName(name string) string {
 	id := uuid.New()
-	return fmt.Sprintf("%s-%s", name, id.String())
+	generatedName := fmt.Sprintf("%s-%s", name, id.String())
+	return generatedName[:Min(len(generatedName), 63)]
+}
+
+func Max(x, y int) int {
+	if x < y {
+		return y
+	}
+	return x
+}
+
+func Min(x, y int) int {
+	if x > y {
+		return y
+	}
+	return x
 }

@@ -17,12 +17,13 @@ type Artifact struct {
 }
 
 type Replication struct {
-	Customer       string     `json:"customer"`
-	VaultURI       string     `json:"vaultURI"`
-	TargetRegistry string     `json:"targetRegistry"`
-	SourceRegistry string     `json:"sourceResgistry"`
-	Source         Source     `json:"source"`
-	Target         Target     `json:"target"`
-	Images         []Artifact `json:"images"`
-	Charts         []Artifact `json:"charts"`
+	Customer        string     `json:"customer"`
+	ReplicationType string     `json:"replicationType"`
+	VaultURI        string     `json:"vaultURI"`
+	TargetRegistry  string     `json:"targetRegistry"`
+	SourceRegistry  string     `json:"sourceResgistry"`
+	Source          Source     `json:"source"`
+	Target          Target     `json:"target"`
+	Images          []Artifact `json:"images"`
+	Charts          []Artifact `json:"charts"`
 }
