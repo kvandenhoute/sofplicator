@@ -19,12 +19,15 @@ package controllers
 import (
 	"context"
 
+	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	sofplicatorv1alpha1 "github.com/kvandenhoute/sofplicator/operator/api/v1alpha1"
+	replicator "github.com/kvandenhoute/sofplicator/operator/internal/replicator"
 )
 
 // ReplicationReconciler reconciles a Replication object
@@ -48,9 +51,12 @@ type ReplicationReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.13.0/pkg/reconcile
 func (r *ReplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
-
-	// TODO(user): your logic here
-
+	replication := &sofplicatorv1alpha1.Replication{}
+	err := r.Get(ctx, req.NamespacedName, replication)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	replicator.StartReplication(replication.Spec)
 	return ctrl.Result{}, nil
 }
 
@@ -58,5 +64,7 @@ func (r *ReplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 func (r *ReplicationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&sofplicatorv1alpha1.Replication{}).
+		Owns(&batchv1.Job{}).
+		WithOptions(controller.Options{MaxConcurrentReconciles: 3}).
 		Complete(r)
 }
