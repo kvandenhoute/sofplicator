@@ -34,9 +34,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       
+      - name: Get time
+        id: time
+        run: echo ::set-output name=time::$(date +'%H%M%S')
+
+      - name: Get PR number
+        id: prNumber
+        uses: kamatama41/get-pr-number-action@v0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Get version
         id: vars
-        run: echo ::set-output name=version::$(cat ./build/package/sofplicator/version.info)${{ github.event_name != 'pull_request' && '' || format('-RC-{0}', github.event.repository.updated_at) }}
+        run: echo ::set-output name=version::$(cat ./build/package/sofplicator/version.info)${{ github.event_name != 'pull_request' && '' || format('-RC-{0}-{1}', steps.prNumber.outputs.number, steps.time.outputs.time ) }}
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
