@@ -8,7 +8,7 @@ Sofplicator aimes to provide easy scaling from one registry to another.
 
 
 ## Build
-`docker build -f ./build/package/sofplicator . -t sofplicator:0.1.0`
+`docker build -f ./build/package/sofplicator . -t sofplicator:0.5.0`
 
 ## RUN
 ```

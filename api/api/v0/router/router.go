@@ -14,6 +14,14 @@ func ServeRouter() {
 	router.POST("/startGlobalReplication", func(c *gin.Context) {
 		api.StartGlobalReplication(c)
 	})
+	router.POST("/cleanReplication/:uuid", func(c *gin.Context) {
+		uuid := c.Param("uuid")
+		api.CleanReplication(uuid, c)
+	})
+	router.GET("/getReplicationStatus/:uuid", func(c *gin.Context) {
+		uuid := c.Param("uuid")
+		api.GetReplicationStatus(uuid, c)
+	})
 	router.GET("/healthz", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "I'm alive!"})
 	})

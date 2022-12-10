@@ -48,8 +48,11 @@ func main() {
 	registries := util.GetAllACRsWithLabel(util.ListSubscriptions(), "replicationTarget", "true")
 
 	for _, registry := range registries {
-		configMapName := replicator.CreateConfigmap(strings.Split(*registry.Registry.LoginServer, ".")[0]+"-repl", images, charts, "default")
-		replicator.CreateJob(strings.Split(*registry.Registry.LoginServer, ".")[0]+"-repl", "harbor.aks-we-devops-harbor.int.sofico.be/dev/acr-skopeo-replicate-kvdh:1.0.0", "dev-tooling", "docker-credentials", "/etc/sofplicator", configMapName, "acr-credentials", *registry.Registry.LoginServer)
+		configMapName, err := replicator.CreateConfigmap(strings.Split(*registry.Registry.LoginServer, ".")[0]+"-repl", "uuid", images, charts, "default")
+		if err != nil {
+			log.Error("error: %s", err)
+		}
+		replicator.CreateJob(strings.Split(*registry.Registry.LoginServer, ".")[0]+"-repl", "uuid", "harbor.aks-we-devops-harbor.int.sofico.be/dev/acr-skopeo-replicate-kvdh:1.0.0", "dev-tooling", "docker-credentials", "/etc/sofplicator", configMapName, "acr-credentials", *registry.Registry.LoginServer)
 	}
 
 }
