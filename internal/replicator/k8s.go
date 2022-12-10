@@ -192,7 +192,7 @@ func CleanupResources(uuid string, namespace string) error {
 
 func deleteJob(uuid string, namespace string) error {
 	client := util.KubeClient()
-	job, err := getJobOnLabel(uuid, namespace)
+	job, err := GetJobOnLabel(uuid, namespace)
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func deleteSecret(uuid string, namespace string) error {
 	return nil
 }
 
-func getJobOnLabel(uuid string, namespace string) (batchv1.Job, error) {
+func GetJobOnLabel(uuid string, namespace string) (batchv1.Job, error) {
 	client := util.KubeClient()
 	jobs := client.BatchV1().Jobs(namespace)
 	jobList, err := jobs.List(context.TODO(), metav1.ListOptions{
