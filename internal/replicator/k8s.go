@@ -15,7 +15,7 @@ import (
 
 func CreateSecret(name string, uuid string, username string, password string, namespace string) (string, error) {
 	log.Info("Creating AZ secret")
-	client := util.GetKubeClient()
+	client := util.KubeClient()
 	secretName := util.GenerateName(name, uuid)
 	secrets := client.CoreV1().Secrets(namespace)
 	secret := &v1.Secret{
@@ -41,7 +41,7 @@ func CreateSecret(name string, uuid string, username string, password string, na
 
 func CreateConfigmap(name string, uuid string, images []Artifact, charts []Artifact, namespace string) (string, error) {
 	log.Info("Creating Configmap")
-	client := util.GetKubeClient()
+	client := util.KubeClient()
 	configMapName := util.GenerateName(name, uuid)
 	configMaps := client.CoreV1().ConfigMaps(namespace)
 	imagesJson, err := json.Marshal(images)
@@ -74,7 +74,7 @@ func CreateConfigmap(name string, uuid string, images []Artifact, charts []Artif
 }
 
 func CreateJob(name string, uuid string, image string, namespace string, imagePullSecret string, mountPath string, configMapName string, secretName string, vaultURI string) (string, error) {
-	client := util.GetKubeClient()
+	client := util.KubeClient()
 	jobs := client.BatchV1().Jobs(namespace)
 	log.Info("Starting job")
 	jobName := util.GenerateName(name, uuid)
@@ -191,7 +191,7 @@ func CleanupResources(uuid string, namespace string) error {
 }
 
 func deleteJob(uuid string, namespace string) error {
-	client := util.GetKubeClient()
+	client := util.KubeClient()
 	job, err := GetJobOnLabel(uuid, namespace)
 	if err != nil {
 		return err
@@ -206,7 +206,7 @@ func deleteJob(uuid string, namespace string) error {
 }
 
 func deleteConfigmap(uuid string, namespace string) error {
-	client := util.GetKubeClient()
+	client := util.KubeClient()
 	configmap, err := getConfigmapOnLabel(uuid, namespace)
 	if err != nil {
 		return err
@@ -221,7 +221,7 @@ func deleteConfigmap(uuid string, namespace string) error {
 }
 
 func deleteSecret(uuid string, namespace string) error {
-	client := util.GetKubeClient()
+	client := util.KubeClient()
 	secret, err := getSecretOnLabel(uuid, namespace)
 	if err != nil {
 		return err
@@ -236,7 +236,7 @@ func deleteSecret(uuid string, namespace string) error {
 }
 
 func GetJobOnLabel(uuid string, namespace string) (batchv1.Job, error) {
-	client := util.GetKubeClient()
+	client := util.KubeClient()
 	jobs := client.BatchV1().Jobs(namespace)
 	jobList, err := jobs.List(context.TODO(), metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("sofplicator-uuid=%s", uuid),
@@ -255,7 +255,7 @@ func GetJobOnLabel(uuid string, namespace string) (batchv1.Job, error) {
 }
 
 func getSecretOnLabel(uuid string, namespace string) (v1.Secret, error) {
-	client := util.GetKubeClient()
+	client := util.KubeClient()
 	secrets := client.CoreV1().Secrets(namespace)
 	secretList, err := secrets.List(context.TODO(), metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("sofplicator-uuid=%s", uuid),
@@ -274,7 +274,7 @@ func getSecretOnLabel(uuid string, namespace string) (v1.Secret, error) {
 }
 
 func getConfigmapOnLabel(uuid string, namespace string) (v1.ConfigMap, error) {
-	client := util.GetKubeClient()
+	client := util.KubeClient()
 	configmaps := client.CoreV1().ConfigMaps(namespace)
 	configmapList, err := configmaps.List(context.TODO(), metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("sofplicator-uuid=%s", uuid),

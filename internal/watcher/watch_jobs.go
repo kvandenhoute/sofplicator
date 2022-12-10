@@ -20,7 +20,7 @@ func watcher() {
 	// Using the default configuration rules get the info
 	// to connect to the Kubernetes cluster
 
-	util.ReadKubeConfig()
+	util.KubeConfig()
 
 	configLoader := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		clientcmd.NewDefaultClientConfigLoadingRules(),

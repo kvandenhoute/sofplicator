@@ -1,6 +1,8 @@
 package util
 
 import (
+	"sync"
+
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
@@ -8,7 +10,37 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-func ReadKubeConfig() *rest.Config {
+var kubeconfigLock = &sync.Mutex{}
+var kubeclientLock = &sync.Mutex{}
+
+var (
+	kubeconfig *rest.Config
+	kubeclient *kubernetes.Clientset
+)
+
+func KubeConfig() *rest.Config {
+	kubeconfigLock.Lock()
+	defer kubeconfigLock.Unlock()
+
+	if kubeconfig == nil {
+		log.Info("Initial load of kubeconfig")
+		kubeconfig = readKubeConfig()
+	}
+	return kubeconfig
+}
+
+func KubeClient() *kubernetes.Clientset {
+	kubeclientLock.Lock()
+	defer kubeclientLock.Unlock()
+
+	if kubeclient == nil {
+		log.Info("Initial load of kubeclient")
+		kubeclient = getKubeClient()
+	}
+	return kubeclient
+}
+
+func readKubeConfig() *rest.Config {
 	log.Debug("Reading in-cluster kubeconfig")
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -18,8 +50,8 @@ func ReadKubeConfig() *rest.Config {
 	return config
 }
 
-func GetKubeClient() *kubernetes.Clientset {
-	config := ReadKubeConfig()
+func getKubeClient() *kubernetes.Clientset {
+	config := KubeConfig()
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		log.Panicln("Failed to create K8s clientset")
