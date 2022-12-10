@@ -36,7 +36,7 @@ jobs:
       
       - name: Get version
         id: vars
-        run: echo ::set-output name=version::$(cat ./build/package/sofplicator/version.info)${{ github.event_name != 'pull_request' && '' || format('-RC-{0}', github.event.repository.updated_at }}
+        run: echo ::set-output name=version::$(cat ./build/package/sofplicator/version.info)${{ github.event_name != 'pull_request' && '' || format('-RC-{0}', github.event.repository.updated_at) }}
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
