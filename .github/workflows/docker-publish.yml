@@ -74,7 +74,7 @@ jobs:
           context: .
           file: ./build/package/sofplicator
           push: ${{ github.event_name != 'pull_request' }}
-          tags: $( cat ./build/package/sofplicator/version.info)
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(cat ./build/package/sofplicator/version.info)
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
