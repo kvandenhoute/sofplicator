@@ -6,6 +6,7 @@ import (
 
 	"github.com/kvandenhoute/sofplicator/internal/util"
 	log "github.com/sirupsen/logrus"
+	batchv1 "k8s.io/api/batch/v1"
 )
 
 func StartReplication(replication Replication) (string, error) {
@@ -53,4 +54,12 @@ func CleanReplication(uuid string) error {
 		return err
 	}
 	return nil
+}
+
+func GetJobStatus(uuid string) (batchv1.JobStatus, error) {
+	job, err := GetJobOnLabel(uuid, "dev-tooling")
+	if err != nil {
+		return batchv1.JobStatus{}, err
+	}
+	return job.Status, nil
 }
