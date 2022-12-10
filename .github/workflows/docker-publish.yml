@@ -46,8 +46,12 @@ jobs:
 
       - name: Get version
         id: vars
-        run: echo ::set-output name=version::$(cat ./build/package/sofplicator/version.info)${{ github.event_name != 'pull_request' && '' || format('-RC-{0}-{1}', steps.prNumber.outputs.number, steps.time.outputs.time ) }}
+        run: echo ::set-output name=version::$(cat ./build/package/sofplicator/version.info)
 
+      - name: Get tag
+        id: tag
+        run: echo ::set-output name=tag::${{ github.event_name != 'pull_request' && steps.vars.outputs.version || format('RC{0}-{1}', steps.prNumber.outputs.number, steps.time.outputs.time ) }}
+      
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
