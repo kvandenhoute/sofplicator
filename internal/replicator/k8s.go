@@ -32,6 +32,8 @@ func CreateSecret(name string, uuid string, username string, password string, na
 			"AZ_ACR_PASSWORD": password,
 		},
 	}
+	log.Trace(secret)
+	log.Trace(*secret)
 	_, err := secrets.Create(context.TODO(), secret, metav1.CreateOptions{})
 	if err != nil {
 		return "", err
@@ -66,6 +68,8 @@ func CreateConfigmap(name string, uuid string, images []Artifact, charts []Artif
 			"charts.json": string(chartsJson),
 		},
 	}
+	log.Trace(configMap)
+	log.Trace(*configMap)
 	_, err = configMaps.Create(context.TODO(), configMap, metav1.CreateOptions{})
 	if err != nil {
 		return "", err
@@ -166,6 +170,8 @@ func CreateJob(name string, uuid string, image string, namespace string, imagePu
 			BackoffLimit: &backOffLimit,
 		},
 	}
+	log.Trace(job)
+	log.Trace(*job)
 	_, err := jobs.Create(context.TODO(), job, metav1.CreateOptions{})
 	if err != nil {
 		return "", nil
