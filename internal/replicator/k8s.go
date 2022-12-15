@@ -276,6 +276,8 @@ func getSecretOnLabel(uuid string, namespace string) (v1.Secret, error) {
 
 func getCurrentNamespace() string {
 	namespace, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	log.Trace("Tried reading namespace")
+	log.Trace(string(namespace))
 	if err != nil {
 		return "dev-tooling"
 	}

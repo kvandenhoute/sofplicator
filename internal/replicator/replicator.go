@@ -24,7 +24,7 @@ func StartReplication(replication Replication) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	_, err = CreateJob(name, uuid, config.Get().JobImage.Registry+"/"+config.Get().JobImage.Repository+"/"+config.Get().JobImage.Tag, getCurrentNamespace(), config.Get().DockerCredentialsSecret, config.Get().MountPath, configMapName, secretName, replication.TargetRegistry)
+	_, err = CreateJob(name, uuid, config.Get().JobImage.Registry+"/"+config.Get().JobImage.Repository+":"+config.Get().JobImage.Tag, getCurrentNamespace(), config.Get().DockerCredentialsSecret, config.Get().MountPath, configMapName, secretName, replication.TargetRegistry)
 	if err != nil {
 		return "", err
 	}
