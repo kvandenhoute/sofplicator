@@ -32,6 +32,7 @@ func StartReplication(replication Replication) (string, error) {
 }
 
 func StartGlobalReplication(replication Replication) (map[string]*string, error) {
+	log.Info("Start global replication")
 	var jobIds map[string]*string = make(map[string]*string)
 	registriesWithVault := util.GetAllACRsWithLabel(util.ListSubscriptions(), config.Get().AcrInfo.TargetLabelKey, config.Get().AcrInfo.TargetLabelValue)
 
