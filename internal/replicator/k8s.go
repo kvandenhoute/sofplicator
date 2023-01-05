@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 
+	"github.com/kvandenhoute/sofplicator/internal/config"
 	"github.com/kvandenhoute/sofplicator/internal/util"
 	log "github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
@@ -46,11 +48,11 @@ func CreateConfigmap(name string, uuid string, images []Artifact, charts []Artif
 	configMaps := client.CoreV1().ConfigMaps(namespace)
 	imagesJson, err := json.Marshal(images)
 	if err != nil {
-		log.Error(fmt.Errorf("error unmarschalling images"))
+		log.Error(fmt.Errorf("error unmarshalling images"))
 	}
 	chartsJson, err := json.Marshal(charts)
 	if err != nil {
-		log.Error(fmt.Errorf("error unmarschalling charts"))
+		log.Error(fmt.Errorf("error unmarshalling charts"))
 	}
 	configMap := &v1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -271,6 +273,22 @@ func getSecretOnLabel(uuid string, namespace string) (v1.Secret, error) {
 		return v1.Secret{}, errors.New("more than one secret found with unique label")
 	}
 	return secretList.Items[0], nil
+}
+
+func getCurrentNamespace() string {
+	if config.Get().TargetNamespace != "" && len(config.Get().TargetNamespace) != 0 {
+		log.Trace("Use environment variable namespce")
+		return config.Get().TargetNamespace
+	}
+	namespace, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	log.Trace("Tried reading namespace")
+	log.Trace(string(namespace))
+	if err != nil {
+		log.Trace("Use default namespace (dev-tooling)")
+		return "dev-tooling"
+	}
+	log.Trace("Use current namespace (" + string(namespace) + ")")
+	return string(namespace)
 }
 
 func getConfigmapOnLabel(uuid string, namespace string) (v1.ConfigMap, error) {
