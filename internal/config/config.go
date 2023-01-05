@@ -25,6 +25,7 @@ type ReplicationInfo struct {
 	LogLevel                string `env:"LOG_LEVEL,default=trace"`
 	DockerCredentialsSecret string `env:"DOCKER_CREDENTIALS_SECRET,default=docker-credentials"`
 	MountPath               string `env:"MOUNT_PATH,default=/tmp/kvdh/sofplicator"`
+	TargetNamespace         string `env:"TARGET_NAMESPACE"`
 	AcrInfo                 AcrInfo
 	JobImage                JobImage
 }

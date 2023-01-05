@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/kvandenhoute/sofplicator/internal/config"
 	"github.com/kvandenhoute/sofplicator/internal/util"
 	log "github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
@@ -275,12 +276,18 @@ func getSecretOnLabel(uuid string, namespace string) (v1.Secret, error) {
 }
 
 func getCurrentNamespace() string {
+	if config.Get().TargetNamespace != "" && len(config.Get().TargetNamespace) == 0 {
+		log.Trace("Use environment variable namespce")
+		return config.Get().TargetNamespace
+	}
 	namespace, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 	log.Trace("Tried reading namespace")
 	log.Trace(string(namespace))
 	if err != nil {
+		log.Trace("Use default namespace (dev-tooling)")
 		return "dev-tooling"
 	}
+	log.Trace("Use current namespace (" + string(namespace) + ")")
 	return string(namespace)
 }
 

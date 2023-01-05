@@ -107,6 +107,5 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.2.0
 	github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets v0.11.0
 	github.com/gin-gonic/gin v1.8.1
-	github.com/spf13/viper v1.14.0
 	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
 )
