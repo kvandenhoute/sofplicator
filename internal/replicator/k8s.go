@@ -276,7 +276,7 @@ func getSecretOnLabel(uuid string, namespace string) (v1.Secret, error) {
 }
 
 func getCurrentNamespace() string {
-	if config.Get().TargetNamespace != "" && len(config.Get().TargetNamespace) == 0 {
+	if config.Get().TargetNamespace != "" && len(config.Get().TargetNamespace) != 0 {
 		log.Trace("Use environment variable namespce")
 		return config.Get().TargetNamespace
 	}
