@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/kvandenhoute/sofplicator/internal/config"
 	"github.com/kvandenhoute/sofplicator/internal/util"
 	log "github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
@@ -12,18 +13,18 @@ import (
 func StartReplication(replication Replication) (string, error) {
 	splittedTarget := strings.Split(replication.TargetRegistry, ".")[0]
 	name := fmt.Sprintf("%s-%s-repl", splittedTarget, replication.ReplicationType)
-	username := util.GetAzSecret("acr-writer-username", replication.VaultURI)
-	password := util.GetAzSecret("acr-writer-password", replication.VaultURI)
+	username := util.GetAzSecret(config.Get().AcrInfo.UsernameKey, replication.VaultURI)
+	password := util.GetAzSecret(config.Get().AcrInfo.PasswordKey, replication.VaultURI)
 	uuid := util.GenerateUuid()
-	secretName, err := CreateSecret(name, uuid, username, password, "dev-tooling")
+	secretName, err := CreateSecret(name, uuid, username, password, getCurrentNamespace())
 	if err != nil {
 		return "", err
 	}
-	configMapName, err := CreateConfigmap(name, uuid, replication.Images, replication.Charts, "dev-tooling")
+	configMapName, err := CreateConfigmap(name, uuid, replication.Images, replication.Charts, getCurrentNamespace())
 	if err != nil {
 		return "", err
 	}
-	_, err = CreateJob(name, uuid, "harbor.aks-we-devops-harbor.int.sofico.be/dev/acr-skopeo-replicate-kvdh:1.0.0", "dev-tooling", "docker-credentials", "/tmp/kvdh/sofplicator", configMapName, secretName, replication.TargetRegistry)
+	_, err = CreateJob(name, uuid, config.Get().JobImage.Registry+"/"+config.Get().JobImage.Repository+":"+config.Get().JobImage.Tag, getCurrentNamespace(), config.Get().DockerCredentialsSecret, config.Get().MountPath, configMapName, secretName, replication.TargetRegistry)
 	if err != nil {
 		return "", err
 	}
@@ -31,8 +32,9 @@ func StartReplication(replication Replication) (string, error) {
 }
 
 func StartGlobalReplication(replication Replication) (map[string]*string, error) {
+	log.Info("Start global replication")
 	var jobIds map[string]*string = make(map[string]*string)
-	registriesWithVault := util.GetAllACRsWithLabel(util.ListSubscriptions(), "replicationTarget", "true")
+	registriesWithVault := util.GetAllACRsWithLabel(util.ListSubscriptions(), config.Get().AcrInfo.TargetLabelKey, config.Get().AcrInfo.TargetLabelValue)
 
 	for _, registryWithVault := range registriesWithVault {
 		log.Info("Start replication to  %+v", replication.TargetRegistry)
@@ -49,7 +51,7 @@ func StartGlobalReplication(replication Replication) (map[string]*string, error)
 }
 
 func CleanReplication(uuid string) error {
-	err := CleanupResources(uuid, "dev-tooling")
+	err := CleanupResources(uuid, getCurrentNamespace())
 	if err != nil {
 		return err
 	}
@@ -57,7 +59,7 @@ func CleanReplication(uuid string) error {
 }
 
 func GetJobStatus(uuid string) (batchv1.JobStatus, error) {
-	job, err := GetJobOnLabel(uuid, "dev-tooling")
+	job, err := GetJobOnLabel(uuid, getCurrentNamespace())
 	if err != nil {
 		return batchv1.JobStatus{}, err
 	}
