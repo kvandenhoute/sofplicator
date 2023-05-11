@@ -25,22 +25,6 @@ func StartReplication(c *gin.Context) {
 	c.JSON(200, gin.H{"jobId": jobId})
 }
 
-func StartGlobalReplication(c *gin.Context) {
-	var replication replicator.Replication
-
-	if err := c.BindJSON(&replication); err != nil {
-		log.Error(err)
-		return
-	}
-
-	jobIds, err := replicator.StartGlobalReplication(replication)
-	if err != nil {
-		c.JSON(400, gin.H{"bad request": err})
-	}
-
-	c.JSON(200, gin.H{"jobIds": jobIds})
-}
-
 func CleanReplication(uuid string, c *gin.Context) {
 	err := replicator.CleanReplication(uuid)
 	if err != nil {

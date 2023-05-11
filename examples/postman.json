@@ -1,0 +1,85 @@
+{
+	"info": {
+		"_postman_id": "cbb998f5-1a6d-4627-8c37-37b8c3d6f6dc",
+		"name": "Sofplicator",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Healthz",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{SOFPLICATOR_URL}}/healthz",
+					"host": [
+						"{{SOFPLICATOR_URL}}"
+					],
+					"path": [
+						"healthz"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Unauthenticated source -> Unauthenticated target",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"identifier\": \"kvdh\",\r\n    \"sourceRegistry\": {\r\n        \"url\": \"docker.io\",\r\n        \"unauthenticated\": \"true\"\r\n    },\r\n    \"targetRegistry\": {\r\n        \"url\": \"nexus\",\r\n        \"unauthenticated\": \"true\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{SOFPLICATOR_URL}}/startReplication?",
+					"host": [
+						"{{SOFPLICATOR_URL}}"
+					],
+					"path": [
+						"startReplication"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "SOFPLICATOR_URL",
+			"value": "localhost:8080",
+			"type": "default"
+		}
+	]
+}

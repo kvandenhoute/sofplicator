@@ -15,10 +15,8 @@ type JobImage struct {
 }
 
 type AcrInfo struct {
-	UsernameKey      string `env:"ACR_USERNAME_KEY,default=acr-writer-username"`
-	PasswordKey      string `env:"ACR_PASSWORD_KEY,default=acr-writer-password"`
-	TargetLabelKey   string `env:"ACR_TARGET_LABEL_KEY,default=replicationTarget"`
-	TargetLabelValue string `env:"ACR_TARGET_LABEL_VALUE,default=true"`
+	UsernameKey string `env:"ACR_USERNAME_KEY,default=acr-writer-username"`
+	PasswordKey string `env:"ACR_PASSWORD_KEY,default=acr-writer-password"`
 }
 
 type ReplicationInfo struct {

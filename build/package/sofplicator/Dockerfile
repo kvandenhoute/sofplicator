@@ -1,4 +1,4 @@
-FROM golang:1.19.4-alpine3.17 AS build
+FROM docker.io/golang:1.20.4-alpine3.17 AS build
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN go mod tidy
 
 RUN GOOS=linux go build -o /app/bin/sofplicator cmd/sofplicator/*
 
-FROM bellsoft/alpaquita-linux-base:stream-musl-221207
+FROM docker.io/bellsoft/alpaquita-linux-base:stream-musl-230424
 
 COPY --from=build /app/bin/sofplicator /usr/local/bin/
 

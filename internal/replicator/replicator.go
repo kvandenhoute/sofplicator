@@ -1,53 +1,59 @@
 package replicator
 
 import (
-	"fmt"
-	"strings"
+	"errors"
 
 	"github.com/kvandenhoute/sofplicator/internal/config"
 	"github.com/kvandenhoute/sofplicator/internal/util"
-	log "github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 )
 
 func StartReplication(replication Replication) (string, error) {
-	splittedTarget := strings.Split(replication.TargetRegistry, ".")[0]
-	name := fmt.Sprintf("%s-%s-repl", splittedTarget, replication.ReplicationType)
-	username := util.GetAzSecret(config.Get().AcrInfo.UsernameKey, replication.VaultURI)
-	password := util.GetAzSecret(config.Get().AcrInfo.PasswordKey, replication.VaultURI)
 	uuid := util.GenerateUuid()
-	secretName, err := CreateSecret(name, uuid, username, password, getCurrentNamespace())
+
+	targetUsername, targetPassword, err := getCredentialsForRegistry(replication.Target)
 	if err != nil {
 		return "", err
 	}
-	configMapName, err := CreateConfigmap(name, uuid, replication.Images, replication.Charts, getCurrentNamespace())
+	sourceUsername, sourcePassword, err := getCredentialsForRegistry(replication.Source)
 	if err != nil {
 		return "", err
 	}
-	_, err = CreateJob(name, uuid, config.Get().JobImage.Registry+"/"+config.Get().JobImage.Repository+":"+config.Get().JobImage.Tag, getCurrentNamespace(), config.Get().DockerCredentialsSecret, config.Get().MountPath, configMapName, secretName, replication.TargetRegistry)
+	secretName, err := CreateSecret(replication.Identifier, uuid, targetUsername, targetPassword, sourceUsername, sourcePassword, getCurrentNamespace())
+	if err != nil {
+		return "", err
+	}
+	configMapName, err := CreateConfigmap(replication.Identifier, uuid, replication.Images, replication.Charts, getCurrentNamespace())
+	if err != nil {
+		return "", err
+	}
+	jobImage := config.Get().JobImage.Registry + "/" + config.Get().JobImage.Repository + ":" + config.Get().JobImage.Tag
+	_, err = CreateJob(replication.Identifier, uuid, jobImage, getCurrentNamespace(), config.Get().DockerCredentialsSecret, config.Get().MountPath, configMapName, secretName, replication.Source.Url, replication.Target.Url)
 	if err != nil {
 		return "", err
 	}
 	return uuid, nil
 }
 
-func StartGlobalReplication(replication Replication) (map[string]*string, error) {
-	log.Info("Start global replication")
-	var jobIds map[string]*string = make(map[string]*string)
-	registriesWithVault := util.GetAllACRsWithLabel(util.ListSubscriptions(), config.Get().AcrInfo.TargetLabelKey, config.Get().AcrInfo.TargetLabelValue)
-
-	for _, registryWithVault := range registriesWithVault {
-		log.Info("Start replication to  %+v", replication.TargetRegistry)
-		replication.VaultURI = "https://" + *registryWithVault.Vault.Name + ".vault.azure.net/"
-		replication.TargetRegistry = *registryWithVault.Registry.LoginServer
-		jobId, err := StartReplication(replication)
-		if err != nil {
-			return nil, err
+func getCredentialsForRegistry(registry Registry) (string, string, error) {
+	var username string
+	var password string
+	if registry.UseCredentialsFromAzureVault {
+		username = util.GetAzSecret(config.Get().AcrInfo.UsernameKey, registry.VaultURI)
+		password = util.GetAzSecret(config.Get().AcrInfo.PasswordKey, registry.VaultURI)
+		if (len(password) == 0 && len(username) != 0) || (len(username) == 0 && len(password) != 0) {
+			return "", "", errors.New("please make sure both username and password are available in the Azure Vault. Or set useCredentialsFromAzureVault to false")
 		}
-		jobIds[replication.TargetRegistry] = &jobId
-	}
+	} else if registry.UseExistingSecret {
 
-	return jobIds, nil
+	} else {
+		username = registry.Username
+		password = registry.Password
+		if (len(password) == 0 && len(username) != 0) || (len(username) == 0 && len(password) != 0) {
+			return "", "", errors.New("please provide both registry.password and registry.username, or neither")
+		}
+	}
+	return username, password, nil
 }
 
 func CleanReplication(uuid string) error {
