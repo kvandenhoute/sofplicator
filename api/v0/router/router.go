@@ -11,9 +11,6 @@ func ServeRouter() {
 	router.POST("/startReplication", func(c *gin.Context) {
 		api.StartReplication(c)
 	})
-	router.POST("/startGlobalReplication", func(c *gin.Context) {
-		api.StartGlobalReplication(c)
-	})
 	router.POST("/cleanReplication/:uuid", func(c *gin.Context) {
 		uuid := c.Param("uuid")
 		api.CleanReplication(uuid, c)

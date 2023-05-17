@@ -1,13 +1,15 @@
 package replicator
 
-type Source struct {
-	Name            string `json:"name"`
-	ReplicationType string `json:"replicationType"`
-}
-
-type Target struct {
-	Name            string `json:"name"`
-	ReplicationType string `json:"replicationType"`
+type Registry struct {
+	Url                          string `json:"url"`
+	Unauthenticated              bool   `json:"unauthenticated"`
+	Username                     string `json:"username"`
+	Password                     string `json:"password"`
+	UseCredentialsFromAzureVault bool   `json:"useCredentialsFromAzureVault"`
+	VaultURI                     string `json:"vaultURI"`
+	UseExistingSecret            bool   `json:"useExistingSecret"`
+	UsernameKey                  bool   `json:"usernameKey"`
+	PasswordKey                  bool   `json:"passwordKey"`
 }
 
 type Artifact struct {
@@ -17,13 +19,9 @@ type Artifact struct {
 }
 
 type Replication struct {
-	Customer        string     `json:"customer"`
-	ReplicationType string     `json:"replicationType"`
-	VaultURI        string     `json:"vaultURI"`
-	TargetRegistry  string     `json:"targetRegistry"`
-	SourceRegistry  string     `json:"sourceResgistry"`
-	Source          Source     `json:"source"`
-	Target          Target     `json:"target"`
-	Images          []Artifact `json:"images"`
-	Charts          []Artifact `json:"charts"`
+	Identifier string     `json:"identifier"`
+	Source     Registry   `json:"source"`
+	Target     Registry   `json:"target"`
+	Images     []Artifact `json:"images"`
+	Charts     []Artifact `json:"charts"`
 }

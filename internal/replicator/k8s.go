@@ -15,7 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func CreateSecret(name string, uuid string, username string, password string, namespace string) (string, error) {
+func CreateSecret(name string, uuid string, targetUsername string, targetPassword string, sourceUsername string, sourcePassword string, namespace string) (string, error) {
 	log.Info("Creating AZ secret")
 	client := util.KubeClient()
 	secretName := util.GenerateName(name, uuid)
@@ -29,12 +29,17 @@ func CreateSecret(name string, uuid string, username string, password string, na
 			},
 		},
 		StringData: map[string]string{
-			"AZ_ACR_USERNAME": username,
-			"AZ_ACR_PASSWORD": password,
+			"TARGET_USERNAME": targetUsername,
+			"TARGET_PASSWORD": targetPassword,
+			"SOURCE_USERNAME": sourceUsername,
+			"SOURCE_PASSWORD": sourcePassword,
 		},
 	}
+	log.Debug("Create secret")
+	log.Debug(secret)
 	_, err := secrets.Create(context.TODO(), secret, metav1.CreateOptions{})
 	if err != nil {
+		log.Debug(err)
 		return "", err
 	}
 	log.Info("Created secret: ", secretName)
@@ -67,6 +72,8 @@ func CreateConfigmap(name string, uuid string, images []Artifact, charts []Artif
 			"charts.json": string(chartsJson),
 		},
 	}
+	log.Debug("Create configmap")
+	log.Debug(configMap)
 	_, err = configMaps.Create(context.TODO(), configMap, metav1.CreateOptions{})
 	if err != nil {
 		return "", err
@@ -75,13 +82,12 @@ func CreateConfigmap(name string, uuid string, images []Artifact, charts []Artif
 	return configMapName, nil
 }
 
-func CreateJob(name string, uuid string, image string, namespace string, imagePullSecret string, mountPath string, configMapName string, secretName string, vaultURI string) (string, error) {
+func CreateJob(name string, uuid string, image string, namespace string, imagePullSecret string, mountPath string, configMapName string, secretName string, sourceUrl string, targetUrl string) (string, error) {
 	client := util.KubeClient()
 	jobs := client.BatchV1().Jobs(namespace)
-	log.Info("Starting job")
+	log.Info(fmt.Sprintf("Starting job replicating from %s to %s", sourceUrl, targetUrl))
 	jobName := util.GenerateName(name, uuid)
 	var backOffLimit int32 = 2
-	log.Info(vaultURI)
 
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
@@ -115,13 +121,17 @@ func CreateJob(name string, uuid string, image string, namespace string, imagePu
 								},
 								{
 									Name:  "target_url",
-									Value: vaultURI,
+									Value: targetUrl,
+								},
+								{
+									Name:  "source_url",
+									Value: sourceUrl,
 								},
 								{
 									Name: "TARGET_USERNAME",
 									ValueFrom: &v1.EnvVarSource{
 										SecretKeyRef: &v1.SecretKeySelector{
-											Key: "AZ_ACR_USERNAME",
+											Key: "TARGET_USERNAME",
 											LocalObjectReference: v1.LocalObjectReference{
 												Name: secretName,
 											},
@@ -132,7 +142,29 @@ func CreateJob(name string, uuid string, image string, namespace string, imagePu
 									Name: "TARGET_PASSWORD",
 									ValueFrom: &v1.EnvVarSource{
 										SecretKeyRef: &v1.SecretKeySelector{
-											Key: "AZ_ACR_PASSWORD",
+											Key: "TARGET_PASSWORD",
+											LocalObjectReference: v1.LocalObjectReference{
+												Name: secretName,
+											},
+										},
+									},
+								},
+								{
+									Name: "SOURCE_USERNAME",
+									ValueFrom: &v1.EnvVarSource{
+										SecretKeyRef: &v1.SecretKeySelector{
+											Key: "SOURCE_USERNAME",
+											LocalObjectReference: v1.LocalObjectReference{
+												Name: secretName,
+											},
+										},
+									},
+								},
+								{
+									Name: "SOURCE_PASSWORD",
+									ValueFrom: &v1.EnvVarSource{
+										SecretKeyRef: &v1.SecretKeySelector{
+											Key: "SOURCE_PASSWORD",
 											LocalObjectReference: v1.LocalObjectReference{
 												Name: secretName,
 											},
@@ -146,7 +178,6 @@ func CreateJob(name string, uuid string, image string, namespace string, imagePu
 									MountPath: mountPath,
 								},
 							},
-							// Command: strings.Split(*cmd, " "),
 						},
 					},
 					Volumes: []v1.Volume{
@@ -167,6 +198,8 @@ func CreateJob(name string, uuid string, image string, namespace string, imagePu
 			BackoffLimit: &backOffLimit,
 		},
 	}
+	log.Debug("Create job")
+	log.Debug(job)
 	_, err := jobs.Create(context.TODO(), job, metav1.CreateOptions{})
 	if err != nil {
 		return "", nil
